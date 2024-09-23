@@ -1,0 +1,246 @@
+#IMPORTING ALL FILES
+import random
+import pygame
+import time
+import sched
+import math
+
+
+#IMPORTING RESOURCES
+from pygame import mixer
+pygame.init()
+
+#WINDOW SIZE
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 650
+#DISPLAY SIZE
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+#PLAYER IMAGE CALLING AND WHERE TO CONE
+playerImg= pygame.image.load('SPACE GAME/aircraft.png')
+playerX=450
+playerY=650
+
+#ICON OF THE GAME AND NAME OF THE GAME
+pygame.display.set_caption("I Got It GAme")
+icon=pygame.image.load('SPACE GAME/001-jet-plane.png')
+pygame.display.set_icon(icon)
+
+#EMENY EMTU FUNCTION
+enemyImg=[]
+enemyX=[]
+enemyY=[]
+#HOW TO CHANGE THE ENEMY POSITION
+enemyX_change=[]
+enemyY_change=[]
+num_enemy=5
+#ENEMY CALLING AND WHERE TO COME
+for i in range(num_enemy):
+    enemyImg.append(pygame.image.load('SPACE GAME/alien (1).png'))
+    enemyX.append(random.randint(0,450))
+    enemyY.append(random.randint(0,150))
+#HOW TO CHANGE THE ENEMY POSITION
+    enemyX_change.append(float('2'))
+    enemyY_change.append(float('3'))
+
+#CALLING BACLGROUND IMAGE
+background=pygame.image.load('SPACE GAME/anime-style-galaxy-background (1).jpg')
+
+
+#BACLGROUND SOUND
+mixer.music.load("SPACE GAME/background.wav")
+mixer.music.play(-1)
+
+
+
+#CALLING MISSING IMAGE AND HOW TO LAUNCH IT
+missileImg=pygame.image.load('SPACE GAME/technology.png')
+missileX=0
+missileY=playerY
+missileX_change=0
+missileY_change=2
+#MISSILE 2 CALLING 
+missile2Img=pygame.image.load('SPACE GAME/technology.png')
+missile2X=0
+missile2Y=playerY
+missile2X_change=0
+missile2Y_change=2
+
+#COLLISION OF MISSILE WITH ENEMY
+def isCollision(enemyX, enemyY, missileX, missileY):
+      distance= math.sqrt(math.pow(missileX-enemyX,2)+(math.pow(missileY-enemyY,2)))
+      if distance <40:
+          return True
+      else:
+            return False
+def isCollision2(enemyX, enemyY, missile2X, missile2Y):
+      distance= math.sqrt(math.pow(missile2X-enemyX,2)+(math.pow(missile2Y-enemyY,2)))
+      if distance <40:
+          return True
+      else:
+            return False
+
+#PLAYER SCORE
+score_value=0
+font=pygame.font.Font("freesansbold.ttf",32)
+textX=10
+textY=10
+def show_score(x,y):
+       score=font.render("SCORE :"+str(score_value),True,(0,255 ,0))
+       screen.blit(score,(x,y))
+
+
+#GAME OVER FUNCTION
+game_over=pygame.font.Font("freesansbold.ttf",100)
+def game_over_txt():
+      over_txt=font.render("GAME OVER",True,(255,0 ,0))
+      screen.blit(over_txt,(390,270))
+      flag3=True
+
+
+#FLAG SET TO FALSE
+flag2=False
+flag=False
+flag3=False
+
+
+
+#GAME VALUE SET TO INFINITE
+run = True
+while run:
+    #BACKGROND COLOUR IF NEEDED TO APPLY    screen.fill((9, 2, 3))
+
+    #CALLING BACKGROUNG IMAGE TO SET BY (X,Y)
+    screen.blit(background,(0,-100))
+
+    #GAME MOVEMENT BY W,A,S,D
+    keys=pygame.key.get_pressed()
+    # FUTURE COMMAND IF NEEDED   mouse=pygame.mouse.get_pressed()
+
+#PLAYER MOVEMENT BY W,A,S,D
+    if  keys[pygame.K_a]:
+            playerX+= -2
+    if  keys[pygame.K_s]:
+            playerY+= 2
+    if  keys[pygame.K_w]:
+            playerY+= -2
+    if keys[pygame.K_d]:
+            playerX += 2
+
+      #BORDER RESTRICTIONS
+    if playerX<=0:
+          playerX=0
+    elif playerX>=936:
+          playerX=936
+    if playerY<=0:
+          playerY=0
+    elif playerY>=586:
+          playerY=586
+      
+      #ENEMY MOVEMENT CHANGING HIS PLACE BY A DEFAULT SPEED
+    for i in range(num_enemy):
+                 
+                 #GAME OVER FUNCTION
+                 if enemyY[i]>580:
+                     for j in range(num_enemy):
+                         enemyY[i]=20000
+                         enemyX[i]=10000
+                         for k in range(num_enemy):
+                              enemyX[i]=10000
+                              enemyX[i]=10000
+                     game_over_txt()
+                     break
+                 if flag3==True:
+                      for a in range(num_enemy):
+                              enemyX[i]=10000
+                              enemyX[i]=10000
+                      
+                 
+                 enemyX[i] += enemyX_change[i]
+             
+                 # ENEMY CHANGING POSITION WHEN HIT THE BORDER
+                 if enemyX[i] <= 0:
+                     enemyX_change[i] += 0.1
+                     enemyY[i] += enemyY_change[i]
+                 elif enemyX[i] >= 968:
+                     enemyX_change[i] += -0.1
+                     enemyY[i] += enemyY_change[i]
+                 if enemyY[i] >= 618:
+                    enemyY[i] = 618
+                 collision=isCollision(enemyX[i],enemyY[i],missileX,missileY)
+                 collision2=isCollision2(enemyX[i],enemyY[i],missile2X,missile2X)
+                 if collision==True or collision2== True:
+                     enemy_sound=mixer.Sound('SPACE GAME/explosion.wav')
+                     enemy_sound.play()
+          #missileY=playerY
+          #missile2Y=playerY
+                     enemyX[i]=random.randint(0,450)
+                     enemyY[i]=random.randint(0,150)
+                     
+                     flag=False
+                     flag2=False
+                     score_value+=1
+                     
+                 screen.blit(enemyImg[i],(enemyX[i],enemyY[i]))
+
+
+      #FIRING OF THE MISSILE JUST IT WILL SHOW THE IMAGE OF THE IMAGE OF MISSILE
+    if keys[pygame.K_SPACE] :
+        missile_sound=mixer.Sound('SPACE GAME/laser.wav')
+        missile_sound.play()
+        missileY=playerY-2
+        missileX=playerX
+        flag=True
+          #time.sleep(2)
+          
+         
+        screen.blit(missileImg,(missileX,missileY))
+          #SAME CODE FOR MISSILE TWO
+    if keys[pygame.K_SPACE]:
+         
+        missile2Y=playerY-2
+        missile2X=playerX+31
+        flag2=True
+         
+        screen.blit(missile2Img,(missile2X,missile2Y))     
+      
+          
+      #MISSILE MOVEMENT WHEN SPACE IS PRESSED
+    if flag==True :
+         
+         missileY+=-5     
+         screen.blit(missileImg,(missileX,missileY))
+        
+        
+         #SAME FOR MISSILE 2
+    if flag2==True:
+        missile2Y+=-5       
+        screen.blit(missile2Img,(missile2X,missile2Y))
+    show_score(textX, textY)
+    
+      
+
+
+      #PLAYER SHOWING CODE
+    screen.blit(playerImg,(playerX,playerY))
+    #ENEMY SHOWING CODE
+    #screen.blit(enemyimg[i],(enemyX[i],enemyY[i]))
+    
+    #DISPLAY IS BEING UPDATING BY THIS FLIP FUNCTION TO CLEAR THE SCREEN AND PRINTING NEW ELEMENTS IN THE SCREEN
+    pygame.display.flip()
+
+    #CLOSING THE SCREEN BY CLICKING THE CROSS OPTION ON THE TOP RIGHT
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            # MAKING RUN = FALSE TO CLOSE THE LOOP 
+            run = False
+    #show_score(textX, textY)
+  
+    
+
+ 
+    
+    #IF FLIP IS NOT GIVEN WE CAN USE THIS ALSO
+    #pygame.display.update()
+#CLOSING THE PROGRAMME BY CLOSING PYGAME  
+pygame.quit()
+
